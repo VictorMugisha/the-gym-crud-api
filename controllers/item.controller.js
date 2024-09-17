@@ -1,4 +1,5 @@
 const ItemModel = require("../models/item.model");
+const mongoose = require("mongoose");
 
 async function createItem(req, res) {
   try {
@@ -26,4 +27,27 @@ async function getAllItems(req, res) {
   }
 }
 
-module.exports = { createItem, getAllItems };
+async function getSingleItem(req, res) {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ message: "Id is required" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid id" });
+    }
+
+    const item = await ItemModel.findById(id);
+    if (!item) {
+      return res.status(404).json({ message: "Item not found" });
+    }
+
+    res.status(200).json({ item });
+  } catch (error) {
+    console.log("Error in getSingleItem controller: ", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+module.exports = { createItem, getAllItems, getSingleItem };
