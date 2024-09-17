@@ -9,7 +9,7 @@ async function createItem(req, res) {
 
     const item = new ItemModel({ name, description, price });
     await item.save();
-    res.status(201).json({ message: "Item created successfully", item });
+    res.status(201).json({ item });
   } catch (error) {
     console.log("Error in createItem controller: ", error);
     return res.status(500).json({ message: "Internal server error" });
