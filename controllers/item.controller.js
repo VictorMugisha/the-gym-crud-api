@@ -16,4 +16,14 @@ async function createItem(req, res) {
   }
 }
 
-module.exports = { createItem };
+async function getAllItems(req, res) {
+  try {
+    const items = await ItemModel.find();
+    res.status(200).json({ items });
+  } catch (error) {
+    console.log("Error in getAllItems controller: ", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+module.exports = { createItem, getAllItems };
