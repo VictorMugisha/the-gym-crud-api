@@ -50,4 +50,53 @@ async function getSingleItem(req, res) {
   }
 }
 
-module.exports = { createItem, getAllItems, getSingleItem };
+async function updateItem(req, res) {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ message: "Id is required" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid id" });
+    }
+
+    if (Object.keys(req.body).length === 0) {
+      return res.status(400).json({ message: "No fields provided to update" });
+    }
+
+    const allowedToUpdate = ["name", "description", "price"];
+    const providedFields = {};
+
+    for (const field of Object.keys(req.body)) {
+      if (allowedToUpdate.includes(field)) {
+        providedFields[field] = req.body[field];
+      }
+    }
+
+    if (Object.keys(providedFields).length === 0) {
+      return res.status(400).json({ message: "Invalid fields provided" });
+    }
+
+    const item = await ItemModel.findById(id);
+
+    if (!item) {
+      return res.status(404).json({ message: "Item not found" });
+    }
+
+    const updatedItem = await ItemModel.findByIdAndUpdate(id, providedFields, {
+      new: true,
+    });
+
+    if (!updatedItem) {
+      return res.status(500).json({ message: "Could not update item. Try again!" });
+    }
+
+    res.status(200).json({ updatedItem });
+  } catch (error) {
+    console.log("Error in updateItem controller: ", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+module.exports = { createItem, getAllItems, getSingleItem, updateItem };
