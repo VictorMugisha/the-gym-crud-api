@@ -110,15 +110,15 @@ async function deleteItem(req, res) {
 
     const item = await ItemModel.findById(id);
     if (!item) {
-      return res.status(400).json({ message: "Item not found!" });
+      return res.status(404).json({ message: "Item not found!" });
     }
 
     const deletedItem = await ItemModel.findByIdAndDelete(id);
     if (!deletedItem) {
       return res.status(400).json({ message: "Could not delete item" });
     }
-
-    res.status(200).json(deletedItem);
+    
+    return res.status(204).json({});
   } catch (error) {
     console.log("Error in deleteItem controller: ", error);
     res.status(500).json({ message: "Internal server error" });
