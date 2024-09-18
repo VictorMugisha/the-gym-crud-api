@@ -89,7 +89,9 @@ async function updateItem(req, res) {
     });
 
     if (!updatedItem) {
-      return res.status(500).json({ message: "Could not update item. Try again!" });
+      return res
+        .status(500)
+        .json({ message: "Could not update item. Try again!" });
     }
 
     res.status(200).json({ updatedItem });
@@ -99,4 +101,34 @@ async function updateItem(req, res) {
   }
 }
 
-module.exports = { createItem, getAllItems, getSingleItem, updateItem };
+async function deleteItem(req, res) {
+  try {
+    const { id } = req.params;
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid id provided" });
+    }
+
+    const item = await ItemModel.findById(id);
+    if (!item) {
+      return res.status(400).json({ message: "Item not found!" });
+    }
+
+    const deletedItem = await ItemModel.findByIdAndDelete(id);
+    if (!deletedItem) {
+      return res.status(400).json({ message: "Could not delete item" });
+    }
+
+    res.status(200).json(deletedItem);
+  } catch (error) {
+    console.log("Error in deleteItem controller: ", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+module.exports = {
+  createItem,
+  getAllItems,
+  getSingleItem,
+  updateItem,
+  deleteItem,
+};
